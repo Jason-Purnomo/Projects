@@ -1,0 +1,28 @@
+//Generator: Signal generieren
+
+int main(void){
+  init();
+  Serial.begin(9600);
+
+  //1. Schritt:
+  //wir wählen irgendein Pin mit PWM & TIMER Konfiguration (PD3, PD5, PD6, PB1, PB2 oder PB3)
+  //Laut Aufgabe: Empfehlung Timer 1 für Generator & Analyzer zu verwenden -> d.h. wir benutzen entweder PB1 oder PB2
+
+  //2. Schritt: Konfiguration
+  //PIN
+  DDRB |= (1 << DDB2);    //Pin OC1B
+
+  //TIMER1 (PWM nicht-invertierend); Waveform Generation Mode: Fast PWM (Modus 15)
+  TCCR1A = (1 << COM1B1) | (1 << WGM11) | (1 << WGM10);
+  TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11) | (1 << CS10);
+
+  const uint16_t N = 64;      //Prescalar
+
+  uint32_t fsoll = 2000;
+  uint32_t Dpwm = 30;                               //oder float Dpwm = 0.3;
+
+  OCR1A = (16000000L/(N*fsoll)) - 1;
+  OCR1B = (Dpwm * (OCR1A + 1))/100 - 1;             //oder OCR1B = (Dpwm * (OCR1A + 1)) - 1;
+
+  while(1);
+}
